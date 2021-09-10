@@ -6,16 +6,7 @@ public class MoveProcessing
   /*
     for board a 12x12 grid is used with top left being 0 and increasing rightwards and bottom right being 143
 
-    the index 144 is used to store castling rights and index 145 for En-Passant file
-    
-    for castling rights the bits represent KQkq 
-    eg KQkq: 1111 = 15
-
-    for En-Passant file 
-    0-7 is used for a to h
-    -1  is used for no En-Passant 
-
-    for type: numerical representations are used:
+    for type: lower case representations are used:
     0-king
     1-Knight
     2-queen
@@ -47,7 +38,7 @@ public class MoveProcessing
     Valid moves is used to remove off board moves
     eg: a rook on 27 would try to move to 15 but it will be removed
   */
-  public static int[] Valid_moves = 
+  private static int[] Valid_moves = 
   {1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,1,1,1,1,1,1,1,1,1,1,
   1,1,0,0,0,0,0,0,0,0,1,1,
@@ -65,18 +56,18 @@ public class MoveProcessing
   /* 
     Vectors are one move in each direction for sliding pieces
   */
-  public static int[] bishopVectors = {13,11,-13,-11};
-  public static int[] rookVectors = {12,-12,1,-1};
-  public static int[] queenVectors = {13,11,12,1,-13,-11,-12,-1};
+  private static int[] bishopVectors = {13,11,-13,-11};
+  private static int[] rookVectors = {12,-12,1,-1};
+  private static int[] queenVectors = {13,11,12,1,-13,-11,-12,-1};
 
   /*
     Moves of non sliding pieces
   */
-  public static int[] kingMoves = {13,11,12,1,-13,-11,-12,-1};
-  public static int[] pawnMoves = {12,24};
-  public static int[] knightMoves = {14,10,-10,-14,25,23,-25,-23};
+  private static int[] kingMoves = {13,11,12,1,-13,-11,-12,-1};
+  private static int[] pawnMoves = {12,24};
+  private static int[] knightMoves = {14,10,-10,-14,25,23,-25,-23};
 
-  public static ArrayList<Move> generatePseudoLegalMoves(int[] board,int colour)
+  public static ArrayList<Move> generateMoves(int[] board,int colour)
   {
     ArrayList<Move> moves = new ArrayList<Move>();
     for(int i =0;i<144;i++)
@@ -159,34 +150,25 @@ public class MoveProcessing
           int curpos= i;
           if(colour == 0)
           {
-            curpos-=12;
+            curpos+=12;
           }
           else
           {
-            curpos +=12;
+            curpos -=12;
           }
           if(board[curpos]== -1)
           {
             moves.add(new Move(i,curpos,board[i]));
           }
           curpos +=1;
-          if(board[curpos] != -1 && board[curpos]%2 != colour && board[curpos]/2!=0)
+          if(board[curpos] != -1 && board[curpos]%2 != colour)
           {
             moves.add(new Move(i,curpos,true,board[curpos],board[i]));
           }
           curpos -=2;
-          if(board[curpos] != -1 && board[curpos]%2 != colour && board[curpos]/2!=0)
+          if(board[curpos] != -1 && board[curpos]%2 != colour)
           {
             moves.add(new Move(i,curpos,true,board[curpos],board[i]));
-          }
-          curpos = i;
-          if(curpos/12 == 3 && board[curpos]%2 == 1 && board[curpos+24] == -1 && board[curpos+12] == -1)
-          {
-            moves.add(new Move(i,curpos+24,board[i]));
-          }
-          if(curpos/12 == 8 && board[curpos]%2 == 0 && board[curpos-24] == -1 && board[curpos-12] == -1)
-          {
-            moves.add(new Move(i,curpos-24,board[i]));
           }
         }
         //Bishop
@@ -219,7 +201,7 @@ public class MoveProcessing
           }
         }
         //Rook
-        else if(board[i]/2==5){
+        else if(board[i]/2==2){
           //looping through all directions
           for(int j =0; j< rookVectors.length;j++)
           {
@@ -251,9 +233,8 @@ public class MoveProcessing
       }
     }
     return moves;
-  }
-  
-  //Changing the board to make moves
+  }  
+//Changing the board to make moves
   public static int[] makeMove(int[] currboard,Move move)
   {
     int[] processboard = currboard;
@@ -270,8 +251,7 @@ public class MoveProcessing
 
     return processboard;
   }
-
-  //undo the move
+//undo the move
   public static int[] unmakeMove(int[] currboard,Move move)
   {
     int[] processboard = currboard;
@@ -289,24 +269,5 @@ public class MoveProcessing
     }
 
     return processboard;
-  }
-  //legalize moves
-  public static ArrayList<Move> legalizeMoves(ArrayList<Move> moves,int[] board)
-  {
-    ArrayList<Move> legalMoves = new ArrayList<Move>();
-    for(int i =0;i<moves.size();i++)
-    {
-      makeMove(board,moves.get(i));
-      if(!Board.isCheck(board, moves.get(i).movedPiece%2))
-      {
-        if(Board.isCheck(board, 1-moves.get(i).movedPiece%2))
-        {
-          moves.get(i).isCheck = true;
-        }
-        legalMoves.add(moves.get(i));
-      }
-      unmakeMove(board,moves.get(i));
-    }
-    return legalMoves;
   }
 }

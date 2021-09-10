@@ -5,7 +5,6 @@ public class Move
   public int to;
   public int from;
   public boolean hasCaptured;
-  public boolean isCheck = false;
   public int capturedPiece;
   public int movedPiece; 
    
@@ -40,7 +39,7 @@ public class Move
     int yfrom = 8-((this.from/12) - 2);    
     if(this.hasCaptured)
     {
-      return(piecetoChar.get(movedPiece/2)+"x"+(char)(xto+(int)'a')+yto);
+      return(piecetoChar.get(movedPiece/2)+""+(char)(xto+(int)'a')+yto);
     }
     else
     {
@@ -48,17 +47,3 @@ public class Move
     }
   }
 }
-class SortMove implements Comparator<Move> {
-    // Used for sorting in order of priority
-    public int compare(Move a, Move b)
-    {
-        int apr = (4-(a.hasCaptured?1:0)-(a.isCheck?2:0));
-        int bpr = (4-(b.hasCaptured?1:0)-(b.isCheck?2:0));
-        if(apr==bpr)
-        {
-          return 0;
-        }
-        return apr<bpr?-1:1;
-    }
-}
-  
